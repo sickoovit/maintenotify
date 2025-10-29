@@ -7,11 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum DeviceStatus {
+  RECEIVED
+  WORKING
+  DONE
+  DELIVERED
+}
+
 model Device {
-  id          Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
   customer    String
-  status      String   @default("received")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      DeviceStatus @default(RECEIVED)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }

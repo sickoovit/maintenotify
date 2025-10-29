@@ -13,3 +13,20 @@ export const addDevice = async (req, res) => {
   });
   res.json(device);
 };
+
+export const updateStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const allowed = ["RECEIVED", "WORKING", "DONE", "DELIVERED"];
+  if (!allowed.includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
+  const device = await prisma.device.update({
+    where: { id: Number(id) },
+    data: { status },
+  });
+
+  res.json(device);
+};
