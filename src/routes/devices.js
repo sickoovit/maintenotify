@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { addDevice, updateDevice } from "../controllers/deviceController.js";
+import { getDevices, addDevice } from "../controllers/deviceController.js";
 
 const router = Router();
+
+router.get("/", getDevices);
 router.post("/", addDevice);
-router.put("/:id", updateDevice);
+
 export default router;

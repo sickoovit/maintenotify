@@ -1,12 +1,15 @@
-export const addDevice = (req, res) => {
-  const { name, client } = req.body;
-  // later: save to DB
-  res.json({ message: `Device ${name} added for ${client}` });
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+export const getDevices = async (req, res) => {
+  const devices = await prisma.device.findMany();
+  res.json(devices);
 };
 
-export const updateDevice = (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-  // later: update in DB + trigger WhatsApp
-  res.json({ message: `Device ${id} updated to ${status}` });
+export const addDevice = async (req, res) => {
+  const { name, customer } = req.body;
+  const device = await prisma.device.create({
+    data: { name, customer },
+  });
+  res.json(device);
 };
