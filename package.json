@@ -1,0 +1,22 @@
+{
+  "name": "maintenotify",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000m\u0000a\u0000i\u0000n\u0000t\u0000e\u0000n\u0000o\u0000t\u0000i\u0000f\u0000y\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.18.0",
+    "express": "^5.1.0",
+    "prisma": "^6.18.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "prettier": "^3.6.2"
+  },
+  "type": "module"
+}
