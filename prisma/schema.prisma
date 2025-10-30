@@ -14,10 +14,18 @@ enum DeviceStatus {
   DELIVERED
 }
 
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String   @unique
+  devices   Device[]
+}
+
 model Device {
   id          Int          @id @default(autoincrement())
   name        String
-  customer    String
+  client      Client @relation(fields: [clientId], references: [id])
+  clientId    Int
   status      DeviceStatus @default(RECEIVED)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
