@@ -1,10 +1,11 @@
 {
-  "name": "maintenotify",
+  "name": "maintenotify-api",
   "version": "1.0.0",
   "description": "��#\u0000 \u0000m\u0000a\u0000i\u0000n\u0000t\u0000e\u0000n\u0000o\u0000t\u0000i\u0000f\u0000y\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "dotenv": "^17.2.3",
+    "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
   },
   "type": "module"
