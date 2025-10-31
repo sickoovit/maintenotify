@@ -1,18 +1,34 @@
 import axios from "axios";
 
 const WHATSAPP_API_URL = "https://graph.facebook.com/v21.0";
-const { WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_TOKEN } = process.env;
 
-// Validate environment variables on module load
-if (!WHATSAPP_PHONE_NUMBER_ID || !WHATSAPP_TOKEN) {
-  console.warn(
-    "⚠️  WhatsApp credentials not configured. Messages will not be sent."
-  );
-}
+// Helper function to get env vars (evaluated when called, not at import time)
+// This fixes the timing issue where destructuring happens before dotenv loads
+const getWhatsAppConfig = () => ({
+  phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
+  token: process.env.WHATSAPP_TOKEN,
+});
+
+// Validate config and warn once if missing
+let hasWarned = false;
+const validateAndGetConfig = () => {
+  const { phoneNumberId, token } = getWhatsAppConfig();
+
+  if ((!phoneNumberId || !token) && !hasWarned) {
+    console.warn(
+      "⚠️  WhatsApp credentials not configured. Messages will not be sent."
+    );
+    hasWarned = true;
+  }
+
+  return { phoneNumberId, token };
+};
 
 export async function sendWhatsAppMessage(to, message) {
+  const { phoneNumberId, token } = validateAndGetConfig();
+
   // Skip if credentials are missing
-  if (!WHATSAPP_PHONE_NUMBER_ID || !WHATSAPP_TOKEN) {
+  if (!phoneNumberId || !token) {
     console.log(
       `[WhatsApp] Skipping message to ${to} (credentials not configured)`
     );
@@ -20,7 +36,7 @@ export async function sendWhatsAppMessage(to, message) {
   }
 
   try {
-    const url = `${WHATSAPP_API_URL}/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
+    const url = `${WHATSAPP_API_URL}/${phoneNumberId}/messages`;
 
     const payload = {
       messaging_product: "whatsapp",
@@ -31,7 +47,7 @@ export async function sendWhatsAppMessage(to, message) {
 
     const res = await axios.post(url, payload, {
       headers: {
-        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -60,7 +76,9 @@ export async function sendWhatsAppTemplate(
   languageCode = "en",
   components = []
 ) {
-  if (!WHATSAPP_PHONE_NUMBER_ID || !WHATSAPP_TOKEN) {
+  const { phoneNumberId, token } = validateAndGetConfig();
+
+  if (!phoneNumberId || !token) {
     console.log(
       `[WhatsApp] Skipping template to ${to} (credentials not configured)`
     );
@@ -68,7 +86,7 @@ export async function sendWhatsAppTemplate(
   }
 
   try {
-    const url = `${WHATSAPP_API_URL}/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
+    const url = `${WHATSAPP_API_URL}/${phoneNumberId}/messages`;
 
     const payload = {
       messaging_product: "whatsapp",
@@ -83,7 +101,7 @@ export async function sendWhatsAppTemplate(
 
     const res = await axios.post(url, payload, {
       headers: {
-        Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
