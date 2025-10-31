@@ -7,26 +7,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Message {
+  id                Int      @id @default(autoincrement())
+  clientId          Int
+  deviceId          Int?     // Optional - link to specific device
+  content           String   @db.Text
+  direction         MessageDirection
+  whatsappMessageId String?  @unique
+  status            MessageStatus @default(SENT)
+  createdAt         DateTime @default(now())
+  
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  device  Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  
+  @@index([clientId])
+  @@index([deviceId])
+  @@index([createdAt])
+}
+
+enum MessageDirection {
+  INBOUND 
+  OUTBOUND
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+model Client {
+  id       Int      @id @default(autoincrement())
+  name     String
+  phone    String   @unique
+  devices  Device[]
+  messages Message[]
+}
+
+model Device {
+  id        Int          @id @default(autoincrement())
+  name      String
+  status    DeviceStatus @default(RECEIVED)
+  clientId  Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  messages Message[]
+}
+
 enum DeviceStatus {
   RECEIVED
   WORKING
   DONE
   DELIVERED
-}
-
-model Client {
-  id        Int      @id @default(autoincrement())
-  name      String
-  phone     String   @unique
-  devices   Device[]
-}
-
-model Device {
-  id          Int          @id @default(autoincrement())
-  name        String
-  client      Client @relation(fields: [clientId], references: [id])
-  clientId    Int
-  status      DeviceStatus @default(RECEIVED)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
 }
