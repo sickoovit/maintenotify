@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { getDevices, createDevice, updateDeviceStatus } from "../services/api";
 
 const STATUS_COLORS = {
@@ -34,18 +35,51 @@ export default function DevicesPage() {
   // Create device mutation
   const createMutation = useMutation({
     mutationFn: createDevice,
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries(["devices"]);
       setShowForm(false);
       setFormData({ name: "", clientName: "", clientPhone: "" });
+
+      const deviceName = response?.data?.name || "Device";
+      const clientName = response?.data?.client?.name || "customer";
+
+      toast.success(`Device "${deviceName}" created successfully! 📱`);
+      toast.success(`WhatsApp notification sent to ${clientName}`);
+    },
+    onError: (error) => {
+      console.error("Create device error:", error);
+      toast.error(
+        `Failed to create device: ${
+          error.response?.data?.error || error.message
+        }`
+      );
     },
   });
 
   // Update status mutation
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => updateDeviceStatus(id, status),
-    onSuccess: () => {
+    onSuccess: (response, variables) => {
       queryClient.invalidateQueries(["devices"]);
+      const statusEmojis = {
+        RECEIVED: "📥",
+        WORKING: "🔧",
+        DONE: "✅",
+        DELIVERED: "🎉",
+      };
+      toast.success(
+        `Status updated to ${variables.status} ${
+          statusEmojis[variables.status]
+        }`
+      );
+      toast.success("Customer notified via WhatsApp");
+    },
+    onError: (error) => {
+      toast.error(
+        `Failed to update status: ${
+          error.response?.data?.error || error.message
+        }`
+      );
     },
   });
 
@@ -83,9 +117,7 @@ export default function DevicesPage() {
       {/* Add Device Form */}
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">
-            Add New Device
-          </h3>
+          <h3 className="text-lg font-semibold mb-4">Add New Device</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -143,7 +175,7 @@ export default function DevicesPage() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 bg-gray-300 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
